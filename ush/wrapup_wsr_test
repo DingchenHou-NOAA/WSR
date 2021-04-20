@@ -64,8 +64,8 @@ if [[ $testmode = yes ]]; then
       testrzdm=emcrzdm
       testdirectory=/home/people/emc/www/htdocs/gmb/xianwu.xue/sdm_wsr
       useexpid=yes
-      expid=wsr_rocoto
-      PTMP=/gpfs/dell2/ptmp
+      expid=wsr_port2wcoss2 #wsr_rocoto
+      PTMP=/lfs/h1/emc/ptmp #/gpfs/dell2/ptmp
       GESROOT=$PTMP/$LOGNAME/o/$expid/nwges
     ;;
     (*)
@@ -193,11 +193,11 @@ do
     i=`expr ${i} + 1`
 done
 
-curyy=`date -u +%Y`
-curmm=`date -u +%m`
-curdd=`date -u +%d`
-curhh=`date -u +%H`
-PDY=${curyy}${curmm}${curdd}
+#curyy=`date -u +%Y`
+#curmm=`date -u +%m`
+#curdd=`date -u +%d`
+#curhh=`date -u +%H`
+#PDY=${curyy}${curmm}${curdd}
 
 text=${GESdir}/${PDY}decision.txt
 carcahtext=${GESdir}/${PDY}carcah_decision.txt

@@ -53,7 +53,7 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     export HOMEdata=/gpfs/dell2/emc/verification/noscrub/emc.enspara/common
     export archsyndir=/gpfs/dell2/emc/verification/noscrub/emc.enspara/common/git/ens_tracker/TCvitalData/syndat
     
-elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
+elif [[ -L /usrx ]] ; then #&& "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # We are on NOAA Venus or Mars
     echo "Using settings for WCOSS DELL Phase III"
     export machine='WCOSS_DELL_P3'
@@ -69,6 +69,11 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # export COMINcfs_base=$HOMEdata/cfs_2_sst/cfs.
 
     # export COMROOThps=${HOMEdata}
+
+elif [[ -d /apps/prod ]]; then
+	echo "Using settings for WCOSSII Acorn"
+	export machine='ACORN'
+
 fi
 
 export basesource=$SOURCEDIR

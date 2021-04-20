@@ -73,7 +73,8 @@ if [[ $testmode = yes ]]; then
       testdirectory=/home/www/emc/htdocs/gmb/xianwu.xue/wsr_sdm
       useexpid=yes
       PTMP=/gpfs/dell2/ptmp
-      expid=wsr_rocoto
+      expid=wsr_port2wcoss2 #wsr_rocoto
+      PDY=20201120
     ;;
     (*)
       echo Please add test settings to $0 for LOGNAME=$LOGNAME
@@ -151,7 +152,7 @@ curyy=`date -u +%Y`
 curmm=`date -u +%m`
 curdd=`date -u +%d`
 curhh=`date -u +%H`
-PDY=${curyy}${curmm}${curdd}
+#PDY=${curyy}${curmm}${curdd}
 PDY=${PDY:-${curyy}${curmm}${curdd}}
 
 ####################################
