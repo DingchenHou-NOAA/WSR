@@ -11,8 +11,8 @@ set -x
 ####################################
 # Determine Job Output Name on System
 ####################################
-export jobid=${jobid:-"$job.$LSB_JOBID"}
-export pgmout="OUTPUT.${LSB_JOBID}"
+export jobid=${jobid:-"$job"} #.$PBS_JOBID
+export pgmout="OUTPUT.${PBS_JOBID}"
 export pgmerr=errfile
 
 export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
@@ -77,9 +77,13 @@ setpdy.sh
 ##############################
 # Define input COM Directory
 ##############################
+#export COMPATH=/lfs/h1/emc/ens/noscrub/Xianwu.Xue/wsr/HOMEdata_WSR/com/gefs/prod
+export COMINgens=/lfs/h1/emc/ens/noscrub/Xianwu.Xue/wsr/HOMEdata_WSR/com/gefs/prod
 export COMINgens=${COMINgens:-$(compath.py gefs/prod)}
+#export COMPATH=/lfs/h1/emc/ens/noscrub/Xianwu.Xue/wsr/HOMEdata_WSR/com/naefs/prod
+export COMINcmce=/lfs/h1/emc/ens/noscrub/Xianwu.Xue/wsr/HOMEdata_WSR/com/naefs/prod
 export COMINcmce=${COMINcmce:-$(compath.py naefs/prod)}
-
+export DCOMROOT=/lfs/h1/emc/ens/noscrub/Xianwu.Xue/wsr/HOMEdata_WSR/dcom
 ##############################
 # Define output GESdir Directory 
 ##############################
@@ -89,7 +93,7 @@ mkdir -p $GESdir
 # JY- the following can be removed later after test
 export COMENS=$GESdir
 
-export wsrmpexec=mpirun
+export wsrmpexec=mpiexec #mpirun
 echo wsrmpexec=$wsrmpexec
 
 env
