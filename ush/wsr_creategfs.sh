@@ -159,7 +159,7 @@ if [[ $icopygb -eq 1 ]]; then
           do
            ls -al ncopy.$itask
            if (( itask <= memrf_eh )); then
-           echo "ncopy.$itask" >>poescript
+           echo "sh ncopy.$itask" >>poescript
            else
            echo "date" >>poescript
            fi
@@ -168,7 +168,7 @@ if [[ $icopygb -eq 1 ]]; then
           done
           #poe -cmdfile poescript -stdoutmode ordered -ilevel 3
           #$wsrmpexec -cmdfile poescript -stdoutmode ordered -ilevel 3
-          $wsrmpexec cfp poescript
+          $wsrmpexec -n 32 -ppn 32 --cpu-bind core --configfile poescript
 fi
 
        (( itask = 0 ))
@@ -209,7 +209,7 @@ EOF
           do
            ls -al ncmd.$itask
            if (( itask <= nvar )); then
-           echo "ncmd.$itask" >>ncmd.file
+           echo "sh ncmd.$itask" >>ncmd.file
            else
            echo "date" >>ncmd.file
            fi
@@ -218,7 +218,7 @@ EOF
                   
            #poe  -cmdfile ncmd.file  -stdoutmode ordered -ilevel 2
            #$wsrmpexec  -cmdfile ncmd.file  -stdoutmode ordered -ilevel 2
-           $wsrmpexec  cfp ncmd.file
+           $wsrmpexec   -n 32 -ppn 32 --cpu-bind core --configfile ncmd.file
            /bin/rm gens*.t${eh}z.pgrbaf$lta
    done
    i=$(expr $i + 1)
@@ -249,9 +249,9 @@ do
      chmod a+x $cmdfile
      cat << EEOF >>$cmdfile
      cd ${WORK_ENS}/${lt[$i]}
-     rm read.parm vble.dat
+     #rm read.parm vble.dat
      echo "$iens ${lt[$i]} $mem1 $mem0 $nvar $idim $jdim" > read.parm
-     rm -rf  fort.112
+     #rm -rf  fort.112
      $EXECwsr/wsr_reformat <read.parm
      mv vble.dat ${WORK_ETKF}/nc${ensdate}_${lt[$i]}_ens.d
 EEOF
@@ -264,7 +264,7 @@ done
          while (( itask <= MP_PROCS ))
          do
            if(( itask <= ntimes )); then
-             echo "reform.$itask" >> reform.file
+             echo "sh -xa reform.$itask" >> reform.file
            else
              echo "date" >>reform.file
            fi
@@ -273,7 +273,7 @@ done
            
    #/usr/bin/poe -cmdfile reform.file -stdoutmode ordered -ilevel 3
    #$wsrmpexec -cmdfile reform.file -stdoutmode ordered -ilevel 3
-   $wsrmpexec cfp reform.file
-    /bin/rm reform.*
+   $wsrmpexec  -n 32 -ppn 32 --cpu-bind core --configfile reform.file
+   # /bin/rm reform.*
 
 exit
