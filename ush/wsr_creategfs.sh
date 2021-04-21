@@ -159,7 +159,7 @@ if [[ $icopygb -eq 1 ]]; then
           do
            ls -al ncopy.$itask
            if (( itask <= memrf_eh )); then
-           echo "sh ncopy.$itask" >>poescript
+           echo "sh -xa ncopy.$itask" >>poescript
            else
            echo "date" >>poescript
            fi
@@ -209,7 +209,7 @@ EOF
           do
            ls -al ncmd.$itask
            if (( itask <= nvar )); then
-           echo "sh ncmd.$itask" >>ncmd.file
+           echo "sh -xa ncmd.$itask" >>ncmd.file
            else
            echo "date" >>ncmd.file
            fi
@@ -234,6 +234,7 @@ echo "Creating NCEP ens.d ..."
      ((mem0=4*mem1))
       iens=1
 
+export MP_PROCS=21
 cd ${WORK_ENS}
 >reform.file
 i=1
@@ -275,5 +276,6 @@ done
    #$wsrmpexec -cmdfile reform.file -stdoutmode ordered -ilevel 3
    $wsrmpexec  -n 32 -ppn 32 --cpu-bind core --configfile reform.file
    # /bin/rm reform.*
+export MP_PROCS=16
 
 exit
