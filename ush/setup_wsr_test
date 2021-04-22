@@ -20,6 +20,9 @@
 # set up test mode if required
 ####################################
 
+set -xa
+export PS4='$SECONDS + [$LINENO] '
+
 scriptname=`basename $0`
 case $scriptname in
   (setup_wsr)
@@ -72,7 +75,7 @@ if [[ $testmode = yes ]]; then
       testrzdm=emcrzdm
       testdirectory=/home/www/emc/htdocs/gmb/xianwu.xue/wsr_sdm
       useexpid=yes
-      PTMP=/gpfs/dell2/ptmp
+      PTMP=/lfs/h1/emc/ptmp #/gpfs/dell2/ptmp
       expid=wsr_port2wcoss2 #wsr_rocoto
       PDY=20201120
     ;;
@@ -229,49 +232,49 @@ echo "ARE THERE FLIGHT REQUESTS FOR TONIGHT? Y/N"
 read tonight
 if test "$tonight" = 'y' || test "$tonight" = 'Y'
 then
-   echo "DO YOU WANT TO ADD THEM TODAY? Y/N"
-   read resp
+    echo "DO YOU WANT TO ADD THEM TODAY? Y/N"
+    read resp
     if test "$resp"='y' || test "$resp"='Y'
     then
-     echo "PLEASE REMEMBER TO ADD THE CASE(S)! "  
+        echo "PLEASE REMEMBER TO ADD THE CASE(S)! "  
 
-     readfile=$GESdir/verifcases$curyy.d
+        readfile=$GESdir/verifcases$curyy.d
 
-     if [[ -s $readfile ]]; then
+        if [[ -s $readfile ]]; then
 
-     rawlines=`wc -l $readfile`
-     lines=`echo $rawlines|cut -d" " -f1 `
-     cases=`expr ${lines} / 5`
+            rawlines=`wc -l $readfile`
+            lines=`echo $rawlines|cut -d" " -f1 `
+            cases=`expr ${lines} / 5`
 
-     echo $cases
-     i=1
-     line=1
-     while [[ ${i} -le ${cases} ]]
-     do
-         veridate[i]=`head -n $line $readfile | tail -1`
-         line=`expr $line + 1`
-         obsdate[i]=`head -n $line $readfile | tail -1`
-         line=`expr $line + 1`
-         vrlon[i]=`head -n $line $readfile | tail -1`
-         line=`expr $line + 1`
-         vrlat[i]=`head -n $line $readfile | tail -1`
-         line=`expr $line + 1`
-         radvr[i]=`head -n $line $readfile | tail -1`
-         line=`expr $line + 1`
-         echo ${obsdate[$i]}
-         i=`expr ${i} + 1`
-     done
+            echo $cases
+            i=1
+            line=1
+            while [[ ${i} -le ${cases} ]]
+            do
+                veridate[i]=`head -n $line $readfile | tail -1`
+                line=`expr $line + 1`
+                obsdate[i]=`head -n $line $readfile | tail -1`
+                line=`expr $line + 1`
+                vrlon[i]=`head -n $line $readfile | tail -1`
+                line=`expr $line + 1`
+                vrlat[i]=`head -n $line $readfile | tail -1`
+                line=`expr $line + 1`
+                radvr[i]=`head -n $line $readfile | tail -1`
+                line=`expr $line + 1`
+                echo ${obsdate[$i]}
+                i=`expr ${i} + 1`
+            done
+
+        fi
 
     fi
-
-  fi
    
 fi
 
 echo 
 echo "HOW MANY TARGETING CASES DO YOU WANT TO RUN?"
 read cases
-echo
+echo "cases: $cases"
 echo
 
 echo $cases >> $GESdir/targdata.d
@@ -305,111 +308,111 @@ do
     echo
 
     case $defchoice in
-       "") vnorm=2
-           radvr=1000
-           lon1=80
-           lon2=300
-           lat1=00
-           lat2=80;;
-        1) vnorm=2
-           radvr=1000
-           lon1=80
-           lon2=300
-           lat1=00
-           lat2=80;;
-        2) vnorm=2
-           radvr=500
-           lon1=200
-           lon2=240
-           lat1=30
-           lat2=55;;
-        3) vnorm=2
-           radvr=500
-           lon1=260
-           lon2=300
-           lat1=20
-           lat2=50;;
-        4) mk51=0
-           while test ${mk51} -eq 0
-           do
-               mk51=1
-               echo "CHOOSE ONE OF THE FOLLOWING VERIFICATION NORMS"
-               echo "1) 200mb, 500mb, AND 850mb WINDS"
-               echo "2) 200mb, 500mb, AND 850mb WINDS AND TEMPERATURE"
-               echo "3) 850mb WINDS, PRECIPITATION, AND MSLP"
-               read vnorm
-               if [[ ${vnorm} -ne 1 && ${vnorm} -ne 2 ]]; then
-                   if [ ${vnorm} -ne 3 ]; then
-                      mk51=0
-                      echo
-                      echo "Invalid entry, please try again"
-                   fi
-               fi
-               echo
-           done
+        "") vnorm=2
+            radvr=1000
+            lon1=80
+            lon2=300
+            lat1=00
+            lat2=80;;
+        1)  vnorm=2
+            radvr=1000
+            lon1=80
+            lon2=300
+            lat1=00
+            lat2=80;;
+        2)  vnorm=2
+            radvr=500
+            lon1=200
+            lon2=240
+            lat1=30
+            lat2=55;;
+        3)  vnorm=2
+            radvr=500
+            lon1=260
+            lon2=300
+            lat1=20
+            lat2=50;;
+        4)  mk51=0
+            while test ${mk51} -eq 0
+            do
+                mk51=1
+                echo "CHOOSE ONE OF THE FOLLOWING VERIFICATION NORMS"
+                echo "1) 200mb, 500mb, AND 850mb WINDS"
+                echo "2) 200mb, 500mb, AND 850mb WINDS AND TEMPERATURE"
+                echo "3) 850mb WINDS, PRECIPITATION, AND MSLP"
+                read vnorm
+                if [[ ${vnorm} -ne 1 && ${vnorm} -ne 2 ]]; then
+                    if [ ${vnorm} -ne 3 ]; then
+                        mk51=0
+                        echo
+                        echo "Invalid entry, please try again"
+                    fi
+                fi
+                echo
+            done
 
-           mk52=1
-           echo "ENTER THE RADIUS OF THE VERIFICATION REGION (km)"
-           read radvr
-           echo
+            mk52=1
+            echo "ENTER THE RADIUS OF THE VERIFICATION REGION (km)"
+            read radvr
+            echo
 
-           echo "** for longitudes in the western hemisphere, degrees east = 360 - degrees west **"
-           echo "** please enter integer values **"
-           echo
-           echo "ENTER THE WESTERN BOUNDARY OF THE SEARCH AREA (degrees east of 0)"
-           read lon1
-           echo
-           echo "ENTER THE EASTERN BOUNDARY OF THE SEARCH AREA (degrees east of 0)"
-           read lon2
-           echo
-           echo "ENTER THE SOUTHERN BOUNDARY OF THE SEARCH AREA (degrees north)"
-           read lat1
-           echo
-           echo "ENTER THE NORTHERN BOUNDARY OF THE SEARCH AREA (degrees north)"
-           read lat2
-           echo
+            echo "** for longitudes in the western hemisphere, degrees east = 360 - degrees west **"
+            echo "** please enter integer values **"
+            echo
+            echo "ENTER THE WESTERN BOUNDARY OF THE SEARCH AREA (degrees east of 0)"
+            read lon1
+            echo
+            echo "ENTER THE EASTERN BOUNDARY OF THE SEARCH AREA (degrees east of 0)"
+            read lon2
+            echo
+            echo "ENTER THE SOUTHERN BOUNDARY OF THE SEARCH AREA (degrees north)"
+            read lat1
+            echo
+            echo "ENTER THE NORTHERN BOUNDARY OF THE SEARCH AREA (degrees north)"
+            read lat2
+            echo
 
-           mk12=0
-           while test ${mk12} -eq 0
-           do
-               echo "---------------------------------------------------------------"
-               echo "PLEASE VERIFY THIS SEARCH AREA INFORMATION"
-               echo "---------------------------------------------------------------"
-               echo "1) WESTERN BOUNDARY: ${lon1}"
-               echo "2) EASTERN BOUNDARY: ${lon2}"
-               echo "3) SOUTHERN BOUNDARY: ${lat1}"
-               echo "4) NORTHERN BOUNDARY: ${lat2}"
-               echo "---------------------------------------------------------------"
-               echo "<ENTER> IF THIS IS CORRECT OR PRESS c TO MAKE CHANGES"
+            mk12=0
+            while test ${mk12} -eq 0
+            do
+                echo "---------------------------------------------------------------"
+                echo "PLEASE VERIFY THIS SEARCH AREA INFORMATION"
+                echo "---------------------------------------------------------------"
+                echo "1) WESTERN BOUNDARY: ${lon1}"
+                echo "2) EASTERN BOUNDARY: ${lon2}"
+                echo "3) SOUTHERN BOUNDARY: ${lat1}"
+                echo "4) NORTHERN BOUNDARY: ${lat2}"
+                echo "---------------------------------------------------------------"
+                echo "<ENTER> IF THIS IS CORRECT OR PRESS c TO MAKE CHANGES"
 
-               read response
+                read response
 
-               if test "$response" = ''
-               then
-                   mk12=1
-               else
-                   echo
-                   echo "ENTER THE NUMBER OF THE ITEM YOU WISH TO CHANGE"
-                   read changenum
-                   echo
-                   case $changenum in
-                       1) echo "ENTER THE WESTERN BOUNDARY OF THE SEARCH AREA"
-                          read lon1;;
-                       2) echo "ENTER THE EASTERN BOUNDARY OF THE SEARCH AREA"
-                          read lon2;;
-                       3) echo "ENTER THE SOUTHERN BOUNDARY OF THE SEARCH AREA"
-                          read lat1;;
-                       4) echo "ENTER THE NORTHERN BOUNDARY OF THE SEARCH AREA"
-                          read lat2;;
-                       *) echo "please enter one of the numbers on the menu";;
-                   esac
-                   echo
-               fi
-           done;;
+                if test "$response" = ''
+                then
+                    mk12=1
+                else
+                    echo
+                    echo "ENTER THE NUMBER OF THE ITEM YOU WISH TO CHANGE"
+                    read changenum
+                    echo
+                    case $changenum in
+                        1)  echo "ENTER THE WESTERN BOUNDARY OF THE SEARCH AREA"
+                            read lon1;;
+                        2)  echo "ENTER THE EASTERN BOUNDARY OF THE SEARCH AREA"
+                            read lon2;;
+                        3)  echo "ENTER THE SOUTHERN BOUNDARY OF THE SEARCH AREA"
+                            read lat1;;
+                        4)  echo "ENTER THE NORTHERN BOUNDARY OF THE SEARCH AREA"
+                            read lat2;;
+                        *)  echo "please enter one of the numbers on the menu";;
+                    esac
+                    echo
+                fi
+            done;;
 
-       *)echo "Invalid entry, please try again"
-         mk50=0
-         echo;;
+        *)  echo "Invalid entry, please try again"
+            mk50=0
+            echo;;
 
     esac
 done
@@ -443,41 +446,41 @@ do
     mk2=0
     while test ${mk2} -ne 1
     do 
-	mk3=0
-	while test ${mk3} -ne 1
-	do 
+	    mk3=0
+	    while test ${mk3} -ne 1
+	    do 
             mk3=1
             verifsame='n'
-	    if [ ${ct1} -ne 1 ]; then 
+	        if [ ${ct1} -ne 1 ]; then 
                 echo "IS THE FLIGHT OBSERVATION TIME FOR CASE ${ct1} ALSO ${obsdate}? (y/n)"
-		read choice
-   		echo
-		if test "$choice" = 'n' || test "$choice" =  'N'
+		        read choice
+   		        echo
+		        if test "$choice" = 'n' || test "$choice" =  'N'
                 then     
-		    echo "FLIGHT OBSERVATION TIME FOR CASE ${ct1} (yyyymmddhh)"
+		            echo "FLIGHT OBSERVATION TIME FOR CASE ${ct1} (yyyymmddhh)"
                     echo "Enter the earliest observation time."
-		    read obsdate
-		    echo
-		    echo "IS THIS VERIFICATION CASE IDENTICAL TO THE PREVIOUS CASE? (y/n)"
-		    read verifsame
-		    echo
+		            read obsdate
+		            echo
+		            echo "IS THIS VERIFICATION CASE IDENTICAL TO THE PREVIOUS CASE? (y/n)"
+		            read verifsame
+		            echo
                 fi
-	    else
+	        else
                 echo "FLIGHT OBSERVATION TIME FOR CASE ${ct1} (yyyymmddhh)"
                 echo "Enter the earliest observation time."
                 read obsdate
             fi
 
             if [ ${#obsdate} -ne 10 ]; then
-	    	echo "Invalid number of digits"
-		echo "There must be ten digits"
-		mk3=0
-	    fi 
+	    	    echo "Invalid number of digits"
+		        echo "There must be ten digits"
+		        mk3=0
+	        fi 
 
-	    hh=`echo $obsdate|cut -c9-10`
-	    if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then 
-		echo "Invalid time; valid times are 00 and 12"
-		mk3=0
+	        hh=`echo $obsdate|cut -c9-10`
+	        if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then 
+		        echo "Invalid time; valid times are 00 and 12"
+		        mk3=0
             fi
 
             #latestobstime=`/nwprod/util/exec/ndate +204 ${PDY}00`
@@ -488,28 +491,28 @@ do
             fi
 
 
-	    if [ ${mk3} -eq 0 ]; then
-		echo "Please try again"
-		echo 
+	        if [ ${mk3} -eq 0 ]; then
+		        echo "Please try again"
+		        echo 
             else
                 echo
             fi
 
         done
 
-	if test "$verifsame" = 'y' || test "$verifsame" = 'Y'
+	    if test "$verifsame" = 'y' || test "$verifsame" = 'Y'
     	then
-	    nothing=0
-	else
+	        nothing=0
+	    else
         
             mk4=0
-	    while test ${mk4} -ne 1
-	    do
-	        mk4=1
+	        while test ${mk4} -ne 1
+	        do
+	            mk4=1
                 echo "VERIFICATION TIME FOR CASE ${ct1} (yyyymmddhh)"
                 read veridate
             
-	        if [ ${#veridate} -ne 10 ]; then
+	            if [ ${#veridate} -ne 10 ]; then
                     echo "Invalid number of digits"
                     echo "There must be ten digits"
                     mk4=0
@@ -517,68 +520,68 @@ do
 
                 hh=`echo $veridate|cut -c9-10`
                 if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then
-                   echo "Invalid time; valid times are 00 and 12"
-                   mk4=0
+                    echo "Invalid time; valid times are 00 and 12"
+                    mk4=0
                 fi
  
-		latestveritime=`$NDATE +204 ${PDY}00`
-		if [ ${veridate} -gt ${latestveritime} ]; then
-		    echo "Verification time must be within 204 hours of ${PDY}00"
-		    mk4=0
-		fi
+		        latestveritime=`$NDATE +204 ${PDY}00`
+		        if [ ${veridate} -gt ${latestveritime} ]; then
+		            echo "Verification time must be within 204 hours of ${PDY}00"
+		            mk4=0
+		        fi
 
                 if [ ${mk4} -eq 0 ]; then
-		    echo "Please try again"
-		    echo 
+		            echo "Please try again"
+		            echo 
                 else 
-		    echo
-	        fi
+		            echo
+	            fi
        
             done
-	fi
+	    fi
 
         if [ ${obsdate} -ge ${veridate} ]; then
-        	echo "The verification time must be larger than the observing time."
-        	echo "The selected observation and verification times are:"
-                echo "$obsdate and $veridate"
-                echo "Please try again"
-                echo
+            echo "The verification time must be larger than the observing time."
+            echo "The selected observation and verification times are:"
+            echo "$obsdate and $veridate"
+            echo "Please try again"
+            echo
         else
-		mk2=1
+		    mk2=1
         fi
     done
 
     if test "$verifsame" = 'y' || test "$verifsame" = 'Y'
     then
-	nothing=0
+	    nothing=0
     else 
 
         echo "LATITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
         echo "(integer or one decimal place)"
         read lat
-	echo	
+	    echo	
 
         echo "LONGITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
         echo "(Note! Use negative to represent degrees west, e.g. -70.5)"
         read long
-	echo
+        echo
 
         mk7=0
         while test ${mk7} -ne 1
         do
-	    echo "CHOOSE A PRIORITY FOR CASE ${ct1}"
-	    echo "1) HIGH PRIORITY"
-	    echo "2) MEDIUM PRIORITY"
-	    echo "3) LOW PRIORITY"
-	    read priority
+	        echo "CHOOSE A PRIORITY FOR CASE ${ct1}"
+	        echo "1) HIGH PRIORITY"
+	        echo "2) MEDIUM PRIORITY"
+	        echo "3) LOW PRIORITY"
+	        read priority
             case $priority in
-	        1) mk7=1
-                   prioritytxt=HIGH;;
-                2) mk7=1
-                   prioritytxt=MEDIUM;;
-                3) mk7=1
-                   prioritytxt=LOW;;
-                *) echo "Invalid entry, please try again";;
+	            1)  mk7=1
+                    prioritytxt=HIGH;;
+                2)  mk7=1
+                    prioritytxt=MEDIUM;;
+                3)  mk7=1
+                    prioritytxt=LOW;;
+                *)  echo "Invalid entry, please try again";;
             esac
             echo
         done
@@ -623,150 +626,150 @@ do
             echo "Verification time: ${veridate}" >> $text
             echo "Latitude:  ${lat}N" >> $text
             if [[ $long -le 0 ]]; then
-            longwest=`echo 0 - ${long}|bc`
-            echo "Longitude: ${longwest}W" >> $text
+                longwest=`echo 0 - ${long}|bc`
+                echo "Longitude: ${longwest}W" >> $text
             else
-            echo "Longitude: ${long}E" >> $text
+                echo "Longitude: ${long}E" >> $text
             fi
             echo "Priority:  ${prioritytxt}" >> $text
             echo "Comments:  ${comments}" >> $text
         else
-	    echo
-	    echo "ENTER THE NUMBER OF THE ITEM YOU WISH TO CHANGE"
+	    	echo
+	    	echo "ENTER THE NUMBER OF THE ITEM YOU WISH TO CHANGE"
             read changenum
             echo 
-	    case $changenum in
-		1)mk3=0
-                  while test ${mk3} -ne 1
-                  do
-                      mk3=1
-                      echo "FLIGHT OBSERVATION TIME FOR CASE ${ct1} (yyyymmddhh)"
-                      read obsdate
-                      echo
+	    	case $changenum in
+			    1)  mk3=0
+                    while test ${mk3} -ne 1
+                    do
+                        mk3=1
+                        echo "FLIGHT OBSERVATION TIME FOR CASE ${ct1} (yyyymmddhh)"
+                        read obsdate
+                        echo
 
-                      if [ ${#obsdate} -ne 10 ]; then
-                          echo "Invalid number of digits"
-                          echo "There must be ten digits"
-                          mk3=0
-                      fi
+                        if [ ${#obsdate} -ne 10 ]; then
+                            echo "Invalid number of digits"
+                            echo "There must be ten digits"
+                            mk3=0
+                        fi
 
-                      hh=`echo $obsdate|cut -c9-10`
-                      if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then
-                          echo "Invalid time; valid times are 00 and 12"
-                          mk3=0
-                      fi
+                        hh=`echo $obsdate|cut -c9-10`
+                        if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then
+                            echo "Invalid time; valid times are 00 and 12"
+                            mk3=0
+                        fi
 
-                      #latestobstime=`/nwprod/util/exec/ndate +204 ${PDY}00`
-                      latestobstime=`$NDATE +204 ${PDY}00`
-                      if [ ${obsdate} -gt ${latestobstime} ]; then
-                          echo "Observation time must be within 204 hours of ${PDY}00"
-                          mk3=0
-                      fi
+                        #latestobstime=`/nwprod/util/exec/ndate +204 ${PDY}00`
+                        latestobstime=`$NDATE +204 ${PDY}00`
+                        if [ ${obsdate} -gt ${latestobstime} ]; then
+                            echo "Observation time must be within 204 hours of ${PDY}00"
+                            mk3=0
+                        fi
 
-                      if [ ${mk3} -eq 0 ]; then
-                          echo "Please try again"
-                          echo 
-                      else
-                          echo
-                      fi
-                  done
-                  if [ ${obsdate} -ge ${veridate} ]; then
-                      echo "*******************************************"
-                      echo "WARNING: THE OBSERVATION TIME IS CURRENTLY"
-                      echo "         GREATER THAN THE VERIFICATION TIME"
-                      echo "         PLEASE MAKE APPROPRIATE CHANGES"
-                      echo "*******************************************"
-                      echo
-                  fi;;
+                        if [ ${mk3} -eq 0 ]; then
+                            echo "Please try again"
+                            echo 
+                        else
+                            echo
+                        fi
+                    done
+                    if [ ${obsdate} -ge ${veridate} ]; then
+                        echo "*******************************************"
+                        echo "WARNING: THE OBSERVATION TIME IS CURRENTLY"
+                        echo "         GREATER THAN THE VERIFICATION TIME"
+                        echo "         PLEASE MAKE APPROPRIATE CHANGES"
+                        echo "*******************************************"
+                        echo
+                    fi;;
 
-		2)mk4=0
-                  while test ${mk4} -ne 1
-                  do
-                      mk4=1
-                      echo "VERIFICATION TIME FOR CASE ${ct1} (yyyymmddhh)"
-                      read veridate
+			    2)  mk4=0
+                    while test ${mk4} -ne 1
+                    do
+                        mk4=1
+                        echo "VERIFICATION TIME FOR CASE ${ct1} (yyyymmddhh)"
+                        read veridate
         
-                      if [ ${#veridate} -ne 10 ]; then
-                          echo "Invalid number of digits"
-                          echo "There must be ten digits"
-                          mk4=0
-                      fi
+                        if [ ${#veridate} -ne 10 ]; then
+                            echo "Invalid number of digits"
+                            echo "There must be ten digits"
+                            mk4=0
+                        fi
 
-                      hh=`echo $veridate|cut -c9-10`
-                      if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then
-                          echo "Invalid time; valid times are 00 and 12"
-                          mk4=0
-                      fi
+                        hh=`echo $veridate|cut -c9-10`
+                        if [[ ${hh} -ne 00 && ${hh} -ne 12 ]]; then
+                            echo "Invalid time; valid times are 00 and 12"
+                            mk4=0
+                        fi
  
-		      latestveritime=`$NDATE +204 ${PDY}00`
-		      if [ $veridate} -gt ${latestveritime} ]; then
-			  echo "Verification time must be within 204 hours of ${PDY}00"
-			  mk4=0
-		      fi
+		      		    latestveritime=`$NDATE +204 ${PDY}00`
+		      		    if [ $veridate} -gt ${latestveritime} ]; then
+			  			    echo "Verification time must be within 204 hours of ${PDY}00"
+			  			    mk4=0
+		     	 	    fi
 
-                      if [ ${mk4} -eq 0 ]; then
-                          echo "Please try again"
-                          echo
-                      else
-                          echo
-                      fi
-                  done
-                  if [ ${obsdate} -ge ${veridate} ]; then
-                      echo "*******************************************"
-                      echo "WARNING: THE OBSERVATION TIME IS CURRENTLY"
-                      echo "         GREATER THAN THE VERIFICATION TIME"
-                      echo "         PLEASE MAKE APPROPRIATE CHANGES"
-                      echo "*******************************************"
-                      echo 
-                  fi;;
+                        if [ ${mk4} -eq 0 ]; then
+                            echo "Please try again"
+                            echo
+                        else
+                            echo
+                        fi
+                    done
+                    if [ ${obsdate} -ge ${veridate} ]; then
+                        echo "*******************************************"
+                        echo "WARNING: THE OBSERVATION TIME IS CURRENTLY"
+                        echo "         GREATER THAN THE VERIFICATION TIME"
+                        echo "         PLEASE MAKE APPROPRIATE CHANGES"
+                        echo "*******************************************"
+                        echo 
+                    fi;;
 
-		4)mk5=0
-                      echo "LONGITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
-                      echo "(Note! Use negative to represent degrees west, e.g. -70.5)"
-                      read long
-                  echo;;
+			    4)  mk5=0
+                    echo "LONGITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
+                    echo "(Note! Use negative to represent degrees west, e.g. -70.5)"
+                    read long
+                    echo;;
 
-		3)mk6=0
-                      echo "LATITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
-                      echo "(integer or one decimal place)"
-                      read lat
-                  echo;;
+			    3)  mk6=0
+                    echo "LATITUDE OF THE CENTER OF THE VERIFICATION REGION FOR CASE ${ct1}"
+                    echo "(integer or one decimal place)"
+                    read lat
+                    echo;;
 
-		5)mk7=0
-                  while test ${mk7} -ne 1
-                  do
-                      echo "CHOOSE A PRIORITY FOR CASE ${ct1}"
-                      echo "1) HIGH PRIORITY"
-                      echo "2) MEDIUM PRIORITY"
-                      echo "3) LOW PRIORITY"
-                      read priority
-                      case $priority in
-                          1) mk7=1
-                             prioritytxt=high;;
-                          2) mk7=1
-                             prioritytxt=medium;;
-                          3) mk7=1
-                             prioritytxt=low;;
-                          *) echo "Invalid entry, please try again";;
-                      esac
-                      echo
-                  done;;
+			    5)  mk7=0
+                    while test ${mk7} -ne 1
+                    do
+                        echo "CHOOSE A PRIORITY FOR CASE ${ct1}"
+                        echo "1) HIGH PRIORITY"
+                        echo "2) MEDIUM PRIORITY"
+                        echo "3) LOW PRIORITY"
+                        read priority
+                        case $priority in
+                            1)  mk7=1
+                                prioritytxt=high;;
+                            2)  mk7=1
+                                prioritytxt=medium;;
+                            3)  mk7=1
+                                prioritytxt=low;;
+                            *)  echo "Invalid entry, please try again";;
+                        esac
+                        echo
+                    done;;
                  
-                6)echo "ENTER COMMENTS ABOUT CASE ${ct1}, OR PRESS ENTER"
-                  read comments
-                  echo;;
+                6)  echo "ENTER COMMENTS ABOUT CASE ${ct1}, OR PRESS ENTER"
+                    read comments
+                    echo;;
 
-                *)echo "Invalid response";;
+                *)  echo "Invalid response";;
             esac
         fi
         echo
     done
     if [[ $testmode = no ]]; then
-      clear
+        clear
     else
-      echo "##############################################################################"
-      echo clear page here when not in test mode
-      echo "##############################################################################"
+        echo "##############################################################################"
+        echo clear page here when not in test mode
+        echo "##############################################################################"
     fi
 done
 
@@ -779,31 +782,32 @@ done
 TARGFILE=$GESdir/targdata.d
 
 head -1 $TARGFILE | tail -1 > $GESdir/targdata_tmp.d
-head -2 $TARGFILE | tail -1 | read CASES
-head -3 $TARGFILE | tail -1 | read RESOLUTION 
-head -4 $TARGFILE | tail -1 | read IVNORM
-head -5 $TARGFILE | tail -1 | read RADVR
-head -6 $TARGFILE | tail -1 | read LON1
-head -7 $TARGFILE | tail -1 | read LON2
-head -8 $TARGFILE | tail -1 | read LAT1
-head -9 $TARGFILE | tail -1 | read LAT2
+CASES=`head -2 $TARGFILE | tail -1` #| read CASES
+RESOLUTION=`head -3 $TARGFILE | tail -1` # | read RESOLUTION 
+IVNORM=`head -4 $TARGFILE | tail -1` # | read IVNORM
+RADVR=`head -5 $TARGFILE | tail -1` # | read RADVR
+LON1=`head -6 $TARGFILE | tail -1` # | read LON1
+LON2=`head -7 $TARGFILE | tail -1` # | read LON2
+LAT1=`head -8 $TARGFILE | tail -1` # | read LAT1
+LAT2=`head -9 $TARGFILE | tail -1` # | read LAT2
 
 i=1
 while [ $i -le $CASES ]
 do
-     LINE=`expr ${i} \* 6 + 4`
-     head -n $LINE $TARGFILE | tail -1 | read OBSDATE[i]
-     LINE=`expr $LINE + 1`
-     head -n $LINE $TARGFILE | tail -1 | read VERIDATE[i]
-     LINE=`expr $LINE + 1`
-     head -n $LINE $TARGFILE | tail -1 | read VRLON[i]
-     LINE=`expr $LINE + 1`
-     head -n $LINE $TARGFILE | tail -1 | read VRLAT[i]
-     LINE=`expr $LINE + 1`
-     head -n $LINE $TARGFILE | tail -1 | read PRIORITY[i]
-     LINE=`expr $LINE + 1`
-     head -n $LINE $TARGFILE | tail -1 | read COMMENTS[i] 
-i=`expr ${i} + 1`
+    LINE=`expr ${i} \* 6 + 4`
+    OBSDATE[i]=`head -n $LINE $TARGFILE | tail -1` # | read OBSDATE[i]
+    LINE=`expr $LINE + 1`
+    VERIDATE[i]=`head -n $LINE $TARGFILE | tail -1` # | read VERIDATE[i]
+    LINE=`expr $LINE + 1`
+    VRLON[i]=`head -n $LINE $TARGFILE | tail -1` # | read VRLON[i]
+    LINE=`expr $LINE + 1`
+    VRLAT[i]=`head -n $LINE $TARGFILE | tail -1` # | read VRLAT[i]
+    LINE=`expr $LINE + 1`
+    PRIORITY[i]=`head -n $LINE $TARGFILE | tail -1` # | read PRIORITY[i]
+    LINE=`expr $LINE + 1`
+    COMMENTS[i]=`head -n $LINE $TARGFILE | tail -1` # | read COMMENTS[i] 
+
+    i=`expr ${i} + 1`
 done
 
 #curyy=`date -u +%Y`
@@ -818,15 +822,16 @@ i=1
 CURCASES=0
 while [ $i -le $CASES ]
 do
-   #  LOOP TO ADD TIME STEPS BETWEEN OBSDATE AND VERIDATE
-   OBSDATE_TMP=${OBSDATE[i]}
-   while [[ $OBSDATE_TMP -le ${VERIDATE[i]} && $OBSDATE_TMP -le $latestobstime ]] 
-   do
-      #OBSDATE_TMP=`/nwprod/util/exec/ndate +12 $OBSDATE_TMP`
-      OBSDATE_TMP=`$NDATE +12 $OBSDATE_TMP`
-      CURCASES=`expr $CURCASES + 1` 
-   done
-i=`expr ${i} + 1`
+    #  LOOP TO ADD TIME STEPS BETWEEN OBSDATE AND VERIDATE
+    OBSDATE_TMP=${OBSDATE[i]}
+    while [[ $OBSDATE_TMP -le ${VERIDATE[i]} && $OBSDATE_TMP -le $latestobstime ]] 
+    do
+        #OBSDATE_TMP=`/nwprod/util/exec/ndate +12 $OBSDATE_TMP`
+        OBSDATE_TMP=`$NDATE +12 $OBSDATE_TMP`
+        CURCASES=`expr $CURCASES + 1` 
+    done
+
+    i=`expr ${i} + 1`
 done
 
 echo $CURCASES >> $GESdir/targdata_tmp.d 
@@ -841,19 +846,19 @@ echo $LAT2 >> $GESdir/targdata_tmp.d
 i=1
 while [[ $i -le $CASES ]]
 do
-  OBSDATE_TMP=${OBSDATE[i]}
-  while [[ $OBSDATE_TMP -le ${VERIDATE[i]} && $OBSDATE_TMP -le $latestobstime ]]
-  do
-      echo ${OBSDATE_TMP} >> $GESdir/targdata_tmp.d
-      echo ${VERIDATE[i]} >> $GESdir/targdata_tmp.d
-      echo ${VRLON[i]} >> $GESdir/targdata_tmp.d
-      echo ${VRLAT[i]} >> $GESdir/targdata_tmp.d
-      echo ${PRIORITY[i]} >> $GESdir/targdata_tmp.d
-      echo ${COMMENTS[i]} >> $GESdir/targdata_tmp.d
-      #OBSDATE_TMP=`/nwprod/util/exec/ndate +12 $OBSDATE_TMP`
-      OBSDATE_TMP=`$NDATE +12 $OBSDATE_TMP`
-  done
-  i=`expr ${i} + 1`
+    OBSDATE_TMP=${OBSDATE[i]}
+    while [[ $OBSDATE_TMP -le ${VERIDATE[i]} && $OBSDATE_TMP -le $latestobstime ]]
+    do
+        echo ${OBSDATE_TMP} >> $GESdir/targdata_tmp.d
+        echo ${VERIDATE[i]} >> $GESdir/targdata_tmp.d
+        echo ${VRLON[i]} >> $GESdir/targdata_tmp.d
+        echo ${VRLAT[i]} >> $GESdir/targdata_tmp.d
+        echo ${PRIORITY[i]} >> $GESdir/targdata_tmp.d
+        echo ${COMMENTS[i]} >> $GESdir/targdata_tmp.d
+        #OBSDATE_TMP=`/nwprod/util/exec/ndate +12 $OBSDATE_TMP`
+        OBSDATE_TMP=`$NDATE +12 $OBSDATE_TMP`
+    done
+    i=`expr ${i} + 1`
 done
 
 
@@ -862,23 +867,23 @@ mv ${GESdir}/targdata_tmp.d ${GESdir}/targdata.d
 
 if [[ $testmode = no ]]; then
 
-  ssh -l wx12sd ncorzdm "mkdir -p /home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY"
-  scp ${GESdir}/targdata.d wx12sd@ncorzdm:/home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY
-  scp ${GESdir}/targdata.txt.$curhh wx12sd@ncorzdm:/home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY/targdata.txt
+    ssh -l wx12sd ncorzdm "mkdir -p /home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY"
+    scp ${GESdir}/targdata.d wx12sd@ncorzdm:/home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY
+    scp ${GESdir}/targdata.txt.$curhh wx12sd@ncorzdm:/home/people/nco/www/htdocs/pmb/sdm_wsr/$PDY/targdata.txt
 
 else
 
-  echo "For testing send output text to $testuser on $testrzdm in $testdirectory/test$expid/$PDY"
-  ssh -l $testuser $testrzdm "mkdir -p $testdirectory/test$expid/$PDY"
-  scp ${GESdir}/targdata.d $testuser@$testrzdm:$testdirectory/test$expid/$PDY
-  scp ${GESdir}/targdata.txt.$curhh $testuser@$testrzdm:$testdirectory/test$expid/$PDY/targdata.txt
+    echo "For testing send output text to $testuser on $testrzdm in $testdirectory/test$expid/$PDY"
+    #ssh -l $testuser $testrzdm "mkdir -p $testdirectory/test$expid/$PDY"
+    #scp ${GESdir}/targdata.d $testuser@$testrzdm:$testdirectory/test$expid/$PDY
+    #scp ${GESdir}/targdata.txt.$curhh $testuser@$testrzdm:$testdirectory/test$expid/$PDY/targdata.txt
 
 fi
 
 if [[ $testmode = no ]]; then
-  cat  $GESdir/targdata.d | mail -s WSR_SETUP.$PDY sdm@noaa.gov
+    cat  $GESdir/targdata.d | mail -s WSR_SETUP.$PDY sdm@noaa.gov
 else
-  cat  $GESdir/targdata.d | mail -s WSR_SETUP.$PDY $testemail
+    cat  $GESdir/targdata.d | mail -s WSR_SETUP.$PDY $testemail
 fi
 
 echo "------------------------------------------------------------------"
