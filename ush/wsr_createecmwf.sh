@@ -17,7 +17,6 @@
 sizeof() {
 ls -ld "$1" | awk '{printf("%d\n",$5)}'
 }
-
 #NDATE=/nwprod/util/exec/ndate
 #WGRIB=/nwprod/util/exec/wgrib
 #COPYGB=/nwprod/util/exec/copygb
@@ -189,15 +188,15 @@ do
            [[ $nm -le 15 ]] && hex=0${hex}
            
            cat << EOF >> $cmdfile
-          #/usr/bin/egrep -i "${var[varid]}.*${hex}3300*" ecens.inv |cut -f1-2 -d :|${WGRIB:?} -i -grib $ensfile_lt -o ${WORK}/pgb.${fnum}
+          "export PS4='$SECONDS + $(basename ${.sh.file})[$LINENO] '"
           /bin/egrep -i "${var[varid]}.*${hex}3300*" ecens.inv |cut -f1-2 -d :|${WGRIB:?} -i -grib $ensfile_lt -o ${WORK}/pgb.${fnum}
            if [[ $icopygb -eq 1 ]]; then
             ${COPYGB:?} -g2 -i1 -x pgb.${fnum} pgb_use.${fnum} 
-            rm pgb.${fnum}
+            #rm pgb.${fnum}
             mv pgb_use.${fnum} pgb.${fnum}
            fi
            ${WGRIB:?} -s pgb.${fnum} |grep "${var[varid]}"|${WGRIB:?}  -i -text pgb.${fnum} -o fort.${fnum}
-           rm pgb.${fnum}
+           #rm pgb.${fnum}
 EOF
            fnum=$(expr $fnum + 1)
            nm=$(expr $nm + 1)
@@ -215,12 +214,13 @@ EOF
        done
          >ecmd.file
           chmod a+x ecmd.file
+		  #echo "#!/bin/sh" >>ecmd.file
           (( itask = 0 ))
           while (( itask < MP_PROCS ))
           do
            ls -al ecmd.$itask
            if (( itask <= nvar )); then
-           echo "ecmd.$itask" >>ecmd.file
+           echo "sh -xa ecmd.$itask" >>ecmd.file
            else
            echo "date" >>ecmd.file
            fi
@@ -229,8 +229,9 @@ EOF
 
          #/usr/bin/poe -cmdfile ecmd.file -stdoutmode ordered -ilevel 3
          #$wsrmpexec -cmdfile ecmd.file -stdoutmode ordered -ilevel 3
-         $wsrmpexec cfp ecmd.file
-         /bin/rm DCE*
+         #$wsrmpexec  -n 32 -ppn 32 --cpu-bind core --configfile ecmd.file
+		sh -xa ecmd.file
+         #/bin/rm DCE*
     fi
 
    done
@@ -239,9 +240,11 @@ done
 
 fi
 
+#exit 0
 #############################
 # Create combined ensemble  #
 #############################
+export MP_PROCS=21
 echo "Creating ECMWF ens.d ..."
      ((mem1=memec_eh+1))
      ((mem0=1*mem1))
@@ -259,9 +262,9 @@ do
      fi
      cat << EEOF >>$cmdfile
      cd ${WORK_ENS}/${lt[$i]}
-     rm read.parm vble.dat
+     #rm read.parm vble.dat
      echo "$iens ${lt[$i]} $mem1 $mem0 $nvar $idim $jdim" > read.parm
-     rm -rf  fort.112
+     #rm -rf  fort.112
      $EXECwsr/wsr_reformat <read.parm
      mv vble.dat ${WORK_ETKF}/ec${ensdate}_${lt[$i]}_ens.d
 EEOF
@@ -273,7 +276,7 @@ done
          while (( itask <= MP_PROCS ))
          do
            if(( itask <= ntimes )); then
-             echo "reform.$itask" >> reform.file
+             echo "sh -xua reform.$itask" >> reform.file
            else
              echo "date" >>reform.file
            fi
@@ -282,6 +285,9 @@ done
   
    #/usr/bin/poe -cmdfile reform.file -stdoutmode ordered -ilevel 3
    #$wsrmpexec -cmdfile reform.file -stdoutmode ordered -ilevel 3
-   $wsrmpexec cfp reform.file
-   /bin/rm reform.*
+   #$wsrmpexec  -n 32 -ppn 32 --cpu-bind core --configfile reform.file
+	sh -xa reform.file
+
+   #/bin/rm reform.*
+export MP_PROCS=16
 exit
