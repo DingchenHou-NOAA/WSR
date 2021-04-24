@@ -1,7 +1,7 @@
 #!/bin/ksh
 
-set -x
-
+set -xa
+export PS4='$SECONDS + [$LINENO] '
 ###########################################################################
 # This is the main script to produce the U.MIAMI-NCEP Ensemble Transform  #
 # Kalman Filter targeting products                                        #
@@ -85,9 +85,10 @@ do
     line=`expr $line + 1`
     vrlon[i]=`head -n $line $GESdir/targdata.d | tail -1`
     line=`expr $line + 1`
-    if [[ ${vrlon[$i]} -lt 0 ]]
+    check_vrlon=`echo "${vrlon[$i]} <0"|bc -l`
+    if [[ ${check_vrlon} -eq 1 ]]
     then
-      vrlon[i]=`echo 360 + ${vrlon[$i]} |bc`
+      vrlon[i]=`echo "360 + ${vrlon[$i]}" |bc`
     fi
     vrlat[i]=`head -n $line $GESdir/targdata.d | tail -1`
     line=`expr $line + 1`
@@ -539,7 +540,12 @@ do
     startmsg
     export MP_PROCS=$nlon
     #poe $EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
-    $wsrmpexec $ -n 48 -ppn 48 --cpu-bind core --configfile EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
+    #$wsrmpexec -n 48 -ppn 48 --cpu-bind core $EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
+    # $wsrmpexec $EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
+	#export OMP_PLACES=cores
+	#export OMP_NUM_THREADS=2
+	#$wsrmpexec -n 48 -ppn 24 --cpu-bind core --depth 2 $EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
+    $EXECwsr/wsr_summ_allnorms < params >> $pgmout 2> errfile
 
     export err=$?;err_chk
 
@@ -952,9 +958,9 @@ do
     fi
 
     #### copies raw data for summary maps for saving purposes
-
-    if [[ $vrlon -gt 180 ]]; then 
-        vrlonewest=`echo 360 - ${vrlon}|bc `W
+    check_vrlon=$( echo "${vrlon} > 180"|bc -l )
+    if [[ ${check_vrlon} -eq 1 ]]; then #$vrlon -gt 180 ]]; then 
+        vrlonewest=`echo "360 - ${vrlon}"|bc `W
     else
         vrlonewest=${vrlon}E
     fi

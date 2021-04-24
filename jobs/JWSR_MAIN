@@ -14,8 +14,8 @@ set -x
 ####################################
 # Determine Job Output Name on System
 ####################################
-export jobid=${jobid:-"$job.$LSB_JOBID"}
-export pgmout="OUTPUT.${LSB_JOBID}"
+export jobid=${jobid:-"$job.$PBS_JOBID"}
+export pgmout="OUTPUT.${PBS_JOBID}"
 export pgmerr=errfile
 
 export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
@@ -100,7 +100,7 @@ if [[ $PDY -ge 20110226 ]]; then
   export phase=2
 fi
 
-export wsrmpexec=mpirun
+export wsrmpexec=mpiexec #mpirun
 echo wsrmpexec=$wsrmpexec
 
 env|sort
