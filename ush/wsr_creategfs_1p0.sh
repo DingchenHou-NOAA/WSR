@@ -36,35 +36,35 @@ echo $date1 $date2 $date3 $date4
 #### for CDATE in $date1  $date3; do
 for CDATE in $date1 $date2 $date3 $date4; do
 
-  PDY=`echo $CDATE | cut -c1-8`
-  cyc=`echo $CDATE | cut -c9-10`
-  echo " day " $PDY$cyc
+    PDY=`echo $CDATE | cut -c1-8`
+    cyc=`echo $CDATE | cut -c9-10`
+    echo " day " $PDY$cyc
 
-  mkdir -p $DATA/gefs.$PDY/$cyc/pgrb2a1p0    # 1.0d GRIB2 tmp output
+    mkdir -p $DATA/gefs.$PDY/$cyc/pgrb2a1p0    # 1.0d GRIB2 tmp output
 
-# interpolate 0.5d GEFS ensmebla GRIB2 to 1.0d GRIB2  
-#
-  for mem in ${memberlist}; do
-    if [ -s poe_copygb_${mem}.$PDY$cyc ]; then
-      rm poe_copygb_${mem}.$PDY$cyc
-    fi
-    for nfhrs in $hourlist; do
-      infile=${COMINgens}/gefs.${PDY}/$cyc/atmos/pgrb2ap5/ge${mem}.t${cyc}z.pgrb2a.0p50.f${nfhrs}    
-      outfile=$DATA/gefs.$PDY/$cyc/pgrb2a1p0/ge${mem}.t${cyc}z.pgrb2a.1p00.f${nfhrs}            
-      if [ -s $infile ]; then 
-        echo "${COPYGB2:?} -g \" $grid2 \" -x $infile $outfile" >> poe_copygb_${mem}.$PDY$cyc
-      else
-        echo " echo "There is no $infile, Skip" "           >> poe_copygb_${mem}.$PDY$cyc
-      fi
-    done
-    chmod +x poe_copygb_${mem}.$PDY$cyc
-    startmsg
+    # interpolate 0.5d GEFS ensmebla GRIB2 to 1.0d GRIB2
+    #
+    for mem in ${memberlist}; do
+        if [ -s poe_copygb_${mem}.$PDY$cyc ]; then
+            rm poe_copygb_${mem}.$PDY$cyc
+        fi
+        for nfhrs in $hourlist; do
+            infile=${COMINgens}/gefs.${PDY}/$cyc/atmos/pgrb2ap5/ge${mem}.t${cyc}z.pgrb2a.0p50.f${nfhrs}
+            outfile=$DATA/gefs.$PDY/$cyc/pgrb2a1p0/ge${mem}.t${cyc}z.pgrb2a.1p00.f${nfhrs}
+            if [ -s $infile ]; then
+                echo "${COPYGB2:?} -g \" $grid2 \" -x $infile $outfile" >> poe_copygb_${mem}.$PDY$cyc
+            else
+                echo " echo "There is no $infile, Skip" "           >> poe_copygb_${mem}.$PDY$cyc
+            fi
+        done
+        chmod +x poe_copygb_${mem}.$PDY$cyc
+        startmsg
 
-	#cd $PBS_O_WORKDIR
+	    #cd $PBS_O_WORKDIR
 	
-    $wsrmpexec -n 32 -ppn 32 --cpu-bind core --configfile poe_copygb_${mem}.$PDY$cyc
-    export err=$?; err_chk
-  done
+        $wsrmpexec -n 32 -ppn 32 --cpu-bind core --configfile poe_copygb_${mem}.$PDY$cyc
+        export err=$?; err_chk
+    done
 
 done
 
