@@ -13,6 +13,7 @@
 set -x
 module purge
 
+date
 
 export envir='dev'
 export RUN_ENVIR='dev'

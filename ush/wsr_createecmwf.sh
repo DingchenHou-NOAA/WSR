@@ -188,7 +188,6 @@ do
            [[ $nm -le 15 ]] && hex=0${hex}
            
            cat << EOF >> $cmdfile
-          "export PS4='$SECONDS + $(basename ${.sh.file})[$LINENO] '"
           /bin/egrep -i "${var[varid]}.*${hex}3300*" ecens.inv |cut -f1-2 -d :|${WGRIB:?} -i -grib $ensfile_lt -o ${WORK}/pgb.${fnum}
            if [[ $icopygb -eq 1 ]]; then
             ${COPYGB:?} -g2 -i1 -x pgb.${fnum} pgb_use.${fnum} 

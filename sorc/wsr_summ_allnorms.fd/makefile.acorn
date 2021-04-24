@@ -6,11 +6,11 @@ CMD = wsr_summ_allnorms
 #FC =    mpxlf_r
 #FC =    ifort
 #FC=     mpfort -mpi -mkl=sequential
-FC=     mpiifort -mkl=sequential
+FC= $(FCMP) #ftn #-qopenmp #    mpiifort -mkl=sequential
 #FFLAGS= -list -traceback
 #FFLAGS= -list -convert big_endian -assume byterecl
 #FFLAGS= -list -convert big_endian -assume byterecl -traceback
-FFLAGS  = $(FFLAGSMP)
+FFLAGS  = -qopenmp $(FFLAGSMP)
 
 SRCS=	summ_allnorms.f subroutines.f eigen.f
 OBJS=   $(SRCS:.f=.o)
@@ -23,7 +23,7 @@ LIBS=
 all:	$(CMD)
 
 $(CMD):	$(OBJS)
-	$(FC) -o $(@) $(OBJS) $(LIBS)
+	$(FC) -qopenmp -o $(@) $(OBJS) $(LIBS)
 
 $(OBJS):        $(SRCS)
 	$(FC) $(FFLAGS) -c $(SRCS)
