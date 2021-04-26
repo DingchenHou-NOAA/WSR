@@ -155,7 +155,7 @@ if [[ $ifort -eq 1 ]]; then
                 do
                     ls -al ncopy.$itask
                     if (( itask <= memcm_eh)); then
-                        cat "ncopy.$itask" >>poescript
+                        echo "sh -xa ncopy.$itask" >>poescript
                     else
                         echo "date" >>poescript
                     fi
@@ -183,10 +183,9 @@ if [[ $ifort -eq 1 ]]; then
                     ensfile_lt=${cmcdir}/cmc_gep${nm}.t${eh}z.pgrbaf$lta
                     [[ $nm -eq 00 ]] && ensfile_lt=${cmcdir}/cmc_gec00.t${eh}z.pgrbaf$lta
                     usefile=gens${nm}.t${eh}z.pgrbaf$lta
-                    cat << EOF >>$cmdfile
-                       ${WGRIB:?} -s -ncep_opn $usefile | grep "${var[$varid]}" |\
-                       ${WGRIB:?} -i -ncep_opn -text $usefile -o ${WORK}/fort.${fnum}
-EOF
+                    cat <<- EOF >>$cmdfile
+						${WGRIB:?} -s -ncep_opn $usefile | grep "${var[$varid]}" | ${WGRIB:?} -i -ncep_opn -text $usefile -o ${WORK}/fort.${fnum}
+					EOF
                     fnum=$(expr $fnum + 1)
                     nm=$(expr $nm + 1)
                 done
@@ -245,14 +244,14 @@ do
         else
             cmdfile=reform.$((i-MP_PROCS))
         fi
-        cat << EEOF >>$cmdfile
-            cd ${WORK_ENS}/${lt[$i]}
-            #rm read.parm vble.dat
-            echo "$iens ${lt[$i]} $mem1 $mem0 $nvar $idim $jdim" > read.parm
-            #rm -rf  fort.112
-            $EXECwsr/wsr_reformat <read.parm
-            cp vble.dat ${WORK_ETKF}/cm${ensdate}_${lt[$i]}_ens.d
-EEOF
+        cat <<- EOF >>$cmdfile
+			cd ${WORK_ENS}/${lt[$i]}
+			#rm read.parm vble.dat
+			echo "$iens ${lt[$i]} $mem1 $mem0 $nvar $idim $jdim" > read.parm
+			#rm -rf  fort.112
+			$EXECwsr/wsr_reformat <read.parm
+			cp vble.dat ${WORK_ETKF}/cm${ensdate}_${lt[$i]}_ens.d
+		EOF
         chmod a+x $cmdfile
    fi
    ((i+=1))
@@ -279,4 +278,5 @@ chmod a+x reform.file
 $wsrmpexec  -n 32 -ppn 32 --cpu-bind core --configfile reform.file
 # /bin/rm reform.*
 export MP_PROCS=16
-exit
+
+exit 0
